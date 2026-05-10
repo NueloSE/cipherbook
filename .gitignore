@@ -25,3 +25,9 @@ tmp
 coverage.json
 pnpm-lock.yaml
 yarn.lock
+
+node_modules
+artifacts
+cache
+types
+deployments
