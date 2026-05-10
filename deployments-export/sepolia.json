@@ -1,0 +1,9 @@
+{
+  "network": "sepolia",
+  "deployedAt": "2026-05-10T09:24:27.616Z",
+  "deployer": "0x8bCF8d2f35dFc8D72e0CF40cBeB8e87C12819529",
+  "CipherBookFactory": "0x25fba8FD994fcd72b71315e35dc9992ca1FE4F43",
+  "CipherBook": "0x1369BAb501257C419d578d711331D79E27599472",
+  "BaseToken": "0x5dd3C7270ab16049946863036F7c54715bc3ECb2",
+  "QuoteToken": "0x985Ab56DEbaAd5117f6D6cAc63cD1FaE94993A84"
+}
