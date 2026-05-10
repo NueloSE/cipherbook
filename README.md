@@ -20,7 +20,7 @@ Built for the **Zama Developer Program Mainnet Season 2 — Builder Track**.
 
 ## Live Demo
 
-**[https://cipherbook.vercel.app](https://cipherbook.vercel.app)** *(Sepolia testnet — connect MetaMask)*
+**[https://cipherbook-red.vercel.app](https://cipherbook-red.vercel.app)** *(Sepolia testnet — connect MetaMask)*
 
 > Use the built-in Token Faucet to get test TKN and QUSD, then place orders on the TKN/QUSD pair.
 
