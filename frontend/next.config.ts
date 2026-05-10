@@ -1,14 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Skip type-checking during production build — major speedup on Vercel's
-  // low-resource machines. Type errors are caught in local dev / CI instead.
   typescript: { ignoreBuildErrors: true },
 
-  // Keep the Zama relayer SDK out of the SSR bundle — it is browser-only.
+  transpilePackages: ["wagmi", "@wagmi/core", "@wagmi/connectors"],
+
   serverExternalPackages: ["@zama-fhe/relayer-sdk"],
 
   webpack: (config) => {
+    // @wagmi/core's tempo/Connectors.js does `await import('accounts').catch()`
+    // for the optional Tempo Wallet. We don't use it — alias to false so webpack
+    // treats it as an empty module and the .catch() handles it at runtime.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      accounts: false,
+    };
     config.experiments = { ...config.experiments, asyncWebAssembly: true };
     return config;
   },
