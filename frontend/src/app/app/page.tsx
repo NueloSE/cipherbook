@@ -59,20 +59,20 @@ export default function AppPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="border-b border-[#1a1f35] bg-[#05070f]/90 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity shrink-0">
-              <CipherBookIcon size={28} />
-              <span className="font-bold text-[#e2e8f0] tracking-wide">CipherBook</span>
+      <header className="border-b border-white/5 bg-[#020408]/90 backdrop-blur-xl sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link href="/" className="flex items-center gap-2 hover:opacity-75 transition-opacity shrink-0">
+              <CipherBookIcon size={24} />
+              <span className="font-bold text-white tracking-wide text-sm hidden sm:block">CipherBook</span>
             </Link>
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#0f111a] rounded-lg border border-[#1a1f35]">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 card-inner rounded-lg">
               <div className="flex items-center -space-x-1.5">
-                <div className="w-5 h-5 rounded-full bg-[#0047cc] border-2 border-[#0f111a] flex items-center justify-center text-[9px] font-bold text-white">T</div>
-                <div className="w-5 h-5 rounded-full bg-[#00804a] border-2 border-[#0f111a] flex items-center justify-center text-[9px] font-bold text-white">Q</div>
+                <div className="w-5 h-5 rounded-full bg-[#0047cc] border-2 border-[#020408] flex items-center justify-center text-[9px] font-black text-white">T</div>
+                <div className="w-5 h-5 rounded-full bg-[#00804a] border-2 border-[#020408] flex items-center justify-center text-[9px] font-black text-white">Q</div>
               </div>
-              <span className="text-sm font-bold text-[#e2e8f0] font-mono">{BASE_TOKEN_SYMBOL}/{QUOTE_TOKEN_SYMBOL}</span>
-              <span className="text-xs text-[#374060] font-mono">Sepolia</span>
+              <span className="text-sm font-bold text-white font-mono">{BASE_TOKEN_SYMBOL}/{QUOTE_TOKEN_SYMBOL}</span>
+              <span className="text-xs text-white/20 font-mono">Sepolia</span>
             </div>
             <div className="hidden md:block">
               <PairSelector selected={selectedPair} onSelect={setSelectedPair} />
@@ -83,20 +83,20 @@ export default function AppPage() {
       </header>
 
       {/* FHE status bar */}
-      <div className="border-b border-[#1a1f35] bg-[#00f0ff]/2">
-        <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap gap-5">
+      <div className="border-b border-white/5" style={{ background: "rgba(0,240,255,0.02)" }}>
+        <div className="max-w-6xl mx-auto px-5 py-2 flex flex-wrap gap-5">
           {([
             {
               icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
               ),
-              text: "Order prices FHE-encrypted on-chain",
+              text: "Prices FHE-encrypted on-chain",
             },
             {
               icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
                 </svg>
               ),
@@ -104,7 +104,7 @@ export default function AppPage() {
             },
             {
               icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                 </svg>
               ),
@@ -112,61 +112,62 @@ export default function AppPage() {
             },
             {
               icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                 </svg>
               ),
-              text: "Sign to decrypt your own order prices",
+              text: "Sign to decrypt your own orders",
             },
           ] as { icon: React.ReactNode; text: string }[]).map(({ icon, text }) => (
-            <div key={text} className="flex items-center gap-1.5 text-xs text-[#4a5578] font-mono">
-              <span className="text-[#00f0ff]/50">{icon}</span>
+            <div key={text} className="flex items-center gap-1.5 text-xs text-white/20 font-mono">
+              <span className="text-[#00f0ff]/40">{icon}</span>
               <span>{text}</span>
             </div>
           ))}
         </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* Pair info row */}
+      <main className="max-w-6xl mx-auto px-5 py-6 space-y-5">
+        {/* Pair header */}
         <div className="flex items-center gap-3 px-1">
-          <h1 className="text-xl font-bold text-[#e2e8f0] font-mono">{BASE_TOKEN_SYMBOL} / {QUOTE_TOKEN_SYMBOL}</h1>
-          <span className="text-xs text-[#4a5578] bg-[#0f111a] border border-[#1a1f35] px-2 py-0.5 rounded font-mono">
-            Sepolia Testnet
-          </span>
-          <span className="text-xs text-[#374060] hidden sm:block font-mono">
+          <h1 className="text-xl font-black text-white font-mono tracking-tight">{BASE_TOKEN_SYMBOL} / {QUOTE_TOKEN_SYMBOL}</h1>
+          <span className="text-xs text-white/30 card-inner px-2 py-0.5 rounded font-mono">Sepolia</span>
+          <span className="text-xs text-white/15 hidden sm:block font-mono">
             Prices in {QUOTE_TOKEN_SYMBOL} · Amounts in {BASE_TOKEN_SYMBOL}
           </span>
         </div>
 
-        {/* Top row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div className="lg:col-span-1">
-            <MarketSummary refreshTrigger={refreshTick} contractAddress={selectedPair} />
-          </div>
-          <div className="lg:col-span-1">
-            <PlaceOrder
-              onOrderPlaced={refresh}
-              contractAddress={selectedPair}
-              baseTokenAddress={pairBaseToken}
-              quoteTokenAddress={pairQuoteToken}
-            />
-          </div>
-          <div className="lg:col-span-1 flex flex-col gap-4">
+        {/* Top row — 3 cols */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <MarketSummary refreshTrigger={refreshTick} contractAddress={selectedPair} />
+          <PlaceOrder
+            onOrderPlaced={refresh}
+            contractAddress={selectedPair}
+            baseTokenAddress={pairBaseToken}
+            quoteTokenAddress={pairQuoteToken}
+          />
+          <div className="flex flex-col gap-4">
             <BatchMatch onMatchRun={refresh} contractAddress={selectedPair} />
-            <div className="bg-[#0f111a] rounded-xl p-4 border border-[#1a1f35] text-xs text-[#4a5578] space-y-2 font-mono">
-              <p className="font-semibold text-[#8892b0]">How to trade</p>
-              <p><span className="text-[#00f0ff]/50">01</span> Get test tokens from the faucet below.</p>
-              <p><span className="text-[#00f0ff]/50">02</span> Place a limit order — price is FHE-encrypted, tokens escrowed.</p>
-              <p><span className="text-[#00f0ff]/50">03</span> Click Run Batch Match — encrypted comparison runs on-chain.</p>
-              <p><span className="text-[#00f0ff]/50">04</span> KMS relayer auto-settles. Check Pending Settlements if needed.</p>
-              <p><span className="text-[#00f0ff]/50">05</span> View My Orders — sign to decrypt prices and withdraw escrow.</p>
+            {/* How to trade */}
+            <div className="card p-4 text-xs text-white/30 space-y-2 font-mono">
+              <p className="font-semibold text-white/50 text-[11px] uppercase tracking-widest mb-3">How to trade</p>
+              {[
+                ["01", "Get test tokens from the faucet below."],
+                ["02", "Place a limit order — price FHE-encrypted, tokens escrowed."],
+                ["03", "Click Run Batch Match — encrypted comparison runs on-chain."],
+                ["04", "KMS relayer auto-settles. Check Pending Settlements if needed."],
+                ["05", "View My Orders — sign to decrypt prices and withdraw escrow."],
+              ].map(([n, text]) => (
+                <p key={n}>
+                  <span className="text-[#00f0ff]/30">{n}</span>{"  "}{text}
+                </p>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Faucet + Pending Settlements */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Faucet + Pending */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <TokenFaucet
             account={address}
             baseTokenAddress={pairBaseToken}
@@ -175,20 +176,20 @@ export default function AppPage() {
           <PendingSettlements onSettled={refresh} contractAddress={selectedPair} />
         </div>
 
-        {/* Orders table */}
+        {/* Orders */}
         <MyOrders refreshTrigger={refreshTick} contractAddress={selectedPair} />
       </main>
 
       <Toaster />
 
-      <footer className="border-t border-[#1a1f35] mt-12">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-[#374060] font-mono">
+      <footer className="border-t border-white/5 mt-12">
+        <div className="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between text-xs text-white/15 font-mono">
           <span>CipherBook · Zama Developer Program Season 2 · fhEVM v0.11</span>
           <a
             href={`https://sepolia.etherscan.io/address/${selectedPair}`}
             target="_blank"
             rel="noreferrer"
-            className="hover:text-[#00f0ff]/50 transition-colors"
+            className="hover:text-[#00f0ff]/40 transition-colors"
           >
             {selectedPair.slice(0, 6)}…{selectedPair.slice(-4)} ↗
           </a>

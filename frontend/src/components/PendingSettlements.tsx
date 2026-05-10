@@ -136,24 +136,24 @@ export default function PendingSettlements({ onSettled, contractAddress }: Props
   };
 
   return (
-    <div className="bg-[#0f111a] border border-[#1a1f35] rounded-xl p-5 hover:border-[#252c48] transition-colors">
+    <div className="card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-bold text-[#e2e8f0] font-mono tracking-wide">Pending Settlements</h2>
+        <h2 className="text-sm font-bold text-white font-mono uppercase tracking-widest">Pending Settlements</h2>
         <button
           onClick={fetchSettlements}
           disabled={loading}
-          className="text-xs text-[#00f0ff]/60 hover:text-[#00f0ff] disabled:opacity-50 font-mono transition-colors"
+          className="text-xs text-[#00f0ff]/60 hover:text-[#00f0ff] disabled:opacity-40 font-mono transition-colors"
         >
           {loading ? "Loading…" : "Refresh"}
         </button>
       </div>
 
       {settlements.length === 0 ? (
-        <p className="text-sm text-[#4a5578] font-mono">
+        <p className="text-sm text-white/30 font-mono">
           {loading ? "Loading…" : "No pending settlements."}
         </p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {settlements.map((s) => {
             const key = s.id.toString();
             const state = execState[key] ?? "idle";
@@ -161,31 +161,31 @@ export default function PendingSettlements({ onSettled, contractAddress }: Props
             return (
               <div
                 key={key}
-                className="bg-[#141622] rounded-lg p-4 flex flex-col gap-2 border border-[#1a1f35]"
+                className="card-inner p-4 flex flex-col gap-2"
               >
-                <div className="flex items-center justify-between text-xs text-[#4a5578] font-mono">
-                  <span className="text-[#8892b0]">Settlement #{key}</span>
+                <div className="flex items-center justify-between text-xs text-white/35 font-mono">
+                  <span className="text-white/50">Settlement #{key}</span>
                   <span>
                     Buy #{s.buyOrderId.toString()} × Sell #{s.sellOrderId.toString()}
                   </span>
                 </div>
-                <div className="text-xs text-[#374060] font-mono">
+                <div className="text-xs text-white/25 font-mono">
                   Optimistic qty:{" "}
-                  <span className="text-[#e2e8f0]">{s.tradeQty.toString()} TKN</span>
-                  {" "}— KMS decrypts actual qty on execute
+                  <span className="text-white/60">{s.tradeQty.toString()} TKN</span>
+                  {" "}— KMS decrypts actual on execute
                 </div>
 
                 {execError[key] && (
-                  <p className="text-xs text-[#ff3b6b] wrap-break-word font-mono">{execError[key]}</p>
+                  <p className="text-xs text-[#ff4757] wrap-break-word font-mono">{execError[key]}</p>
                 )}
 
                 <button
                   onClick={() => executeSettlement(s)}
                   disabled={busy || state === "done" || !isConnected}
-                  className={`mt-1 text-xs font-mono px-3 py-1.5 rounded-lg transition-all self-end disabled:opacity-50
+                  className={`mt-1 text-xs font-mono px-3 py-1.5 rounded-lg transition-all self-end disabled:opacity-40
                     ${state === "done"
-                      ? "bg-[#003d28] border border-[#00ff9d]/50 text-[#00ff9d]"
-                      : "bg-[#00f0ff]/10 hover:bg-[#00f0ff]/20 border border-[#00f0ff]/40 hover:border-[#00f0ff]/70 text-[#00f0ff]"
+                      ? "bg-[#00d68f] text-[#020408] font-bold"
+                      : "btn-app"
                     }`}
                 >
                   {buttonLabel(s.id)}

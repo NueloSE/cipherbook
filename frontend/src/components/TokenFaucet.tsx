@@ -77,31 +77,31 @@ export default function TokenFaucet({ account, baseTokenAddress, quoteTokenAddre
   }
 
   const placeholder = (
-    <div className="bg-[#0f111a] border border-[#1a1f35] rounded-xl p-5">
-      <h2 className="text-base font-bold text-[#e2e8f0] mb-4 font-mono tracking-wide">Token Faucet</h2>
+    <div className="card p-5">
+      <h2 className="text-sm font-bold text-white mb-4 font-mono uppercase tracking-widest">Token Faucet</h2>
     </div>
   );
 
   if (!mounted) return placeholder;
 
   if (!account) return (
-    <div className="bg-[#0f111a] border border-[#1a1f35] rounded-xl p-5">
-      <h2 className="text-base font-bold text-[#e2e8f0] mb-4 font-mono tracking-wide">Token Faucet</h2>
-      <p className="text-sm text-[#4a5578] font-mono">Connect your wallet to use the faucet.</p>
+    <div className="card p-5">
+      <h2 className="text-sm font-bold text-white mb-4 font-mono uppercase tracking-widest">Token Faucet</h2>
+      <p className="text-sm text-white/30 font-mono">Connect your wallet to use the faucet.</p>
     </div>
   );
 
   return (
-    <div className="bg-[#0f111a] border border-[#1a1f35] rounded-xl p-5 hover:border-[#252c48] transition-colors">
-      <h2 className="text-base font-bold text-[#e2e8f0] mb-4 font-mono tracking-wide">Token Faucet</h2>
+    <div className="card p-5">
+      <h2 className="text-sm font-bold text-white mb-4 font-mono uppercase tracking-widest">Token Faucet</h2>
 
       {error && (
-        <div className="mb-3 text-xs text-[#ff3b6b] bg-[#3d0015]/40 border border-[#ff3b6b]/30 rounded-lg px-3 py-2 font-mono">
+        <div className="mb-3 text-xs text-[#ff4757] card-inner border border-[#ff4757]/30 rounded-xl px-3 py-2 font-mono">
           {error}
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {(
           [
             {
@@ -122,19 +122,19 @@ export default function TokenFaucet({ account, baseTokenAddress, quoteTokenAddre
         ).map(({ key, symbol, balance, decimals, dripAmount }) => (
           <div
             key={key}
-            className="flex items-center justify-between bg-[#141622] rounded-lg px-4 py-3 border border-[#1a1f35]"
+            className="flex items-center justify-between card-inner px-4 py-3"
           >
             <div>
-              <p className="text-xs text-[#4a5578] font-mono uppercase tracking-wider">{symbol} Balance</p>
-              <p className="text-[#e2e8f0] font-mono text-base mt-0.5">
+              <p className="data-label mb-1">{symbol} Balance</p>
+              <p className="text-white font-mono text-sm tabular">
                 {formatBalance(balance, decimals)}{" "}
-                <span className="text-[#00f0ff]/60 text-sm">{symbol}</span>
+                <span className="text-[#00f0ff]/50 text-xs">{symbol}</span>
               </p>
             </div>
             <button
               onClick={() => drip(key)}
               disabled={!!loading}
-              className="text-xs bg-[#00f0ff]/10 hover:bg-[#00f0ff]/20 border border-[#00f0ff]/40 hover:border-[#00f0ff]/70 disabled:opacity-50 text-[#00f0ff] px-3 py-1.5 rounded-lg transition-all font-mono"
+              className="btn-app text-xs px-3 py-1.5 rounded-lg disabled:opacity-40 font-mono"
             >
               {loading === key ? "Minting…" : `Get ${dripAmount}`}
             </button>

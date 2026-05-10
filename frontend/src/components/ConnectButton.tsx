@@ -18,10 +18,7 @@ export function ConnectButton() {
 
   if (!mounted) {
     return (
-      <button
-        disabled
-        className="px-4 py-2 bg-[#00f0ff]/10 border border-[#00f0ff]/30 opacity-50 cursor-not-allowed text-[#00f0ff] text-sm font-mono rounded-lg"
-      >
+      <button disabled className="btn-app px-4 py-2 rounded-lg text-sm font-mono opacity-50 cursor-not-allowed">
         Connect Wallet
       </button>
     );
@@ -30,24 +27,22 @@ export function ConnectButton() {
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-[#0f111a] border border-[#1a1f35] rounded-lg">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#00f0ff] animate-pulse shrink-0" />
-          <span className="text-xs sm:text-sm text-[#00f0ff] font-mono">
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 card-inner rounded-lg">
+          <span className="dot-live shrink-0" style={{ width: 6, height: 6 }} />
+          <span className="text-xs text-[#00f0ff]/80 font-mono">
             {address.slice(0, 6)}…{address.slice(-4)}
           </span>
         </div>
-        {/* Desktop: text button */}
         <button
           onClick={() => disconnect()}
-          className="hidden sm:block px-3 py-1.5 text-xs rounded-lg border border-[#1a1f35] text-[#4a5578] hover:border-[#252c48] hover:text-[#8892b0] transition-all font-mono"
+          className="hidden sm:block btn-app px-3 py-1.5 text-xs rounded-lg font-mono"
         >
           Disconnect
         </button>
-        {/* Mobile: icon-only button */}
         <button
           onClick={() => disconnect()}
           title="Disconnect"
-          className="sm:hidden p-1.5 rounded-lg border border-[#1a1f35] text-[#4a5578] hover:border-[#252c48] hover:text-[#8892b0] transition-all"
+          className="sm:hidden btn-app p-1.5 rounded-lg"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -65,20 +60,12 @@ export function ConnectButton() {
   if (!hasWallet) {
     return (
       <div className="flex flex-col items-end gap-1">
-        <button
-          disabled
-          className="px-4 py-2 bg-[#00f0ff]/10 border border-[#00f0ff]/30 opacity-50 cursor-not-allowed text-[#00f0ff] text-sm font-mono rounded-lg"
-        >
+        <button disabled className="btn-app px-4 py-2 rounded-lg text-sm font-mono opacity-40 cursor-not-allowed">
           Connect Wallet
         </button>
-        <span className="text-xs text-[#4a5578]">
+        <span className="text-[10px] text-white/25 font-mono">
           Install{" "}
-          <a
-            href="https://metamask.io/download/"
-            target="_blank"
-            rel="noreferrer"
-            className="text-[#00f0ff]/70 hover:text-[#00f0ff] underline transition-colors"
-          >
+          <a href="https://metamask.io/download/" target="_blank" rel="noreferrer" className="text-[#00f0ff]/50 hover:text-[#00f0ff]/80 transition-colors">
             MetaMask
           </a>{" "}
           to continue
@@ -98,16 +85,14 @@ export function ConnectButton() {
       <button
         onClick={handleConnect}
         disabled={isPending}
-        className="px-3 sm:px-4 py-2 bg-[#00f0ff]/10 border border-[#00f0ff]/40 hover:bg-[#00f0ff]/20 hover:border-[#00f0ff]/70 disabled:opacity-50 disabled:cursor-not-allowed text-[#00f0ff] text-xs sm:text-sm font-mono rounded-lg transition-all whitespace-nowrap"
+        className="btn-cyan px-4 py-2 rounded-lg text-sm font-mono disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
       >
         {isPending ? "Connecting…" : "Connect Wallet"}
       </button>
       {timedOut && (
-        <span className="text-xs text-amber-400 font-mono">
-          Check MetaMask — popup may be hidden
-        </span>
+        <span className="text-[10px] text-amber-400/70 font-mono">Check MetaMask — popup may be hidden</span>
       )}
-      {error && <span className="text-xs text-[#ff3b6b] font-mono">{error.message}</span>}
+      {error && <span className="text-[10px] text-[#ff4757]/80 font-mono">{error.message}</span>}
     </div>
   );
 }

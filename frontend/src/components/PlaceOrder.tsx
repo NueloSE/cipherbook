@@ -225,14 +225,14 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
     error: `Place ${side === OrderSide.BUY ? "Buy" : "Sell"} Order`,
   };
 
-  const inputCls = "w-full bg-[#141622] text-[#e2e8f0] rounded-lg px-3 py-2.5 border border-[#1a1f35] focus:border-[#00f0ff]/50 focus:outline-none text-sm font-mono disabled:opacity-50 transition-colors placeholder-[#374060]";
+  const inputCls = "cyber-input w-full rounded-lg px-3 py-2.5 text-sm disabled:opacity-50";
 
   return (
-    <div className="bg-[#0f111a] rounded-xl p-6 border border-[#1a1f35] hover:border-[#252c48] transition-colors">
-      <h2 className="text-base font-bold text-[#e2e8f0] mb-4 font-mono tracking-wide">Place Limit Order</h2>
+    <div className="card p-5">
+      <h2 className="text-sm font-bold text-white mb-4 font-mono uppercase tracking-widest">Place Limit Order</h2>
 
       {/* Side selector */}
-      <div className="flex rounded-lg overflow-hidden border border-[#1a1f35] mb-5">
+      <div className="flex rounded-xl overflow-hidden border border-white/10 mb-5">
         {(
           [
             ["BUY", OrderSide.BUY],
@@ -245,9 +245,9 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
             className={`flex-1 py-2.5 text-sm font-bold font-mono transition-all ${
               side === val
                 ? val === OrderSide.BUY
-                  ? "bg-[#003d28] border-b-2 border-[#00ff9d] text-[#00ff9d]"
-                  : "bg-[#3d0015] border-b-2 border-[#ff3b6b] text-[#ff3b6b]"
-                : "bg-[#141622] text-[#4a5578] hover:text-[#8892b0]"
+                  ? "bg-[#00d68f] text-[#020408]"
+                  : "bg-[#ff4757] text-white"
+                : "bg-[#0a0d17] text-white/35 hover:text-white/70"
             }`}
           >
             {label}
@@ -258,13 +258,13 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
       <div className="space-y-3 mb-5">
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs text-[#4a5578] font-mono uppercase tracking-wider">
-              Amount <span className="text-[#374060] normal-case">({BASE_TOKEN_SYMBOL})</span>
+            <label className="data-label">
+              Amount ({BASE_TOKEN_SYMBOL})
             </label>
             {address && (
-              <span className="text-xs text-[#374060] font-mono">
+              <span className="text-xs text-white/20 font-mono">
                 Bal:{" "}
-                <span className="text-[#8892b0]">
+                <span className="text-white/40">
                   {(Number(baseBalance) / 10 ** BASE_TOKEN_DECIMALS).toLocaleString(undefined, { maximumFractionDigits: 2 })} {BASE_TOKEN_SYMBOL}
                 </span>
               </span>
@@ -283,11 +283,8 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
 
         {side === OrderSide.SELL ? (
           <div>
-            <label className="block text-xs text-[#4a5578] mb-1.5 font-mono uppercase tracking-wider">
-              Min Price{" "}
-              <span className="text-[#374060] normal-case">
-                ({QUOTE_TOKEN_SYMBOL}/{BASE_TOKEN_SYMBOL}, encrypted)
-              </span>
+            <label className="data-label block mb-1.5">
+              Min Price ({QUOTE_TOKEN_SYMBOL}/{BASE_TOKEN_SYMBOL}, encrypted)
             </label>
             <input
               type="number"
@@ -298,21 +295,20 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
               disabled={isBusy}
               className={inputCls}
             />
-            <p className="mt-1 text-xs text-[#374060] font-mono">
+            <p className="mt-1.5 text-[10px] text-white/20 font-mono">
               FHE-encrypted before leaving your browser.
             </p>
           </div>
         ) : (
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs text-[#4a5578] font-mono uppercase tracking-wider">
-                Max Payment{" "}
-                <span className="text-[#374060] normal-case">({QUOTE_TOKEN_SYMBOL} budget)</span>
+              <label className="data-label">
+                Max Payment ({QUOTE_TOKEN_SYMBOL} budget)
               </label>
               {address && (
-                <span className="text-xs text-[#374060] font-mono">
+                <span className="text-xs text-white/20 font-mono">
                   Bal:{" "}
-                  <span className="text-[#8892b0]">
+                  <span className="text-white/40">
                     {(Number(quoteBalance) / 10 ** QUOTE_TOKEN_DECIMALS).toLocaleString(undefined, { maximumFractionDigits: 2 })} {QUOTE_TOKEN_SYMBOL}
                   </span>
                 </span>
@@ -328,16 +324,16 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
               className={inputCls}
             />
             {effectiveBuyPrice !== null && (
-              <p className="mt-1 text-xs text-[#00f0ff]/70 font-mono">
+              <p className="mt-1.5 text-[10px] text-[#00f0ff]/60 font-mono">
                 Effective bid:{" "}
-                <span className="text-[#00f0ff] font-bold">
+                <span className="text-[#00f0ff]/90 font-bold">
                   {effectiveBuyPrice} {QUOTE_TOKEN_SYMBOL}/{BASE_TOKEN_SYMBOL}
                 </span>
                 {" "}— FHE-encrypted
               </p>
             )}
             {!effectiveBuyPrice && (
-              <p className="mt-1 text-xs text-[#374060] font-mono">
+              <p className="mt-1.5 text-[10px] text-white/20 font-mono">
                 Effective price = budget ÷ amount. Unused {QUOTE_TOKEN_SYMBOL} returned after settlement.
               </p>
             )}
@@ -349,29 +345,29 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
         onClick={handleSubmit}
         disabled={!mounted || isBusy || !isConnected}
         suppressHydrationWarning
-        className={`w-full py-3 rounded-lg text-sm font-bold font-mono transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+        className={`w-full py-3 rounded-xl text-sm font-bold font-mono transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
           status === "done"
-            ? "bg-[#003d28] border border-[#00ff9d]/60 text-[#00ff9d]"
+            ? "bg-[#00d68f] text-[#020408]"
             : side === OrderSide.BUY
-              ? "bg-[#003d28] border border-[#00ff9d]/40 text-[#00ff9d] hover:bg-[#004d32] hover:border-[#00ff9d]/70"
-              : "bg-[#3d0015] border border-[#ff3b6b]/40 text-[#ff3b6b] hover:bg-[#4d001c] hover:border-[#ff3b6b]/70"
+              ? "bg-[#00d68f] text-[#020408] hover:bg-[#12e69a] hover:shadow-[0_0_24px_rgba(0,214,143,0.3)]"
+              : "bg-[#ff4757] text-white hover:bg-[#ff6370] hover:shadow-[0_0_24px_rgba(255,71,87,0.3)]"
         }`}
       >
         {statusLabel[status]}
       </button>
 
       {status === "error" && errorMsg && (
-        <div className="mt-3 p-3 bg-[#3d0015]/40 border border-[#ff3b6b]/30 rounded-lg">
-          <p className="text-xs text-[#ff3b6b] wrap-break-word font-mono">{errorMsg}</p>
+        <div className="mt-3 p-3 card-inner border-[#ff4757]/30">
+          <p className="text-xs text-[#ff4757] wrap-break-word font-mono">{errorMsg}</p>
         </div>
       )}
 
       {mounted && !isConnected && (
-        <p className="mt-3 text-xs text-[#4a5578] text-center font-mono">Connect your wallet to place orders</p>
+        <p className="mt-3 text-xs text-white/20 text-center font-mono">Connect your wallet to place orders</p>
       )}
 
-      <p className="mt-3 text-xs text-[#374060] text-center font-mono">
-        Price FHE-encrypted before leaving your browser — MEV-proof
+      <p className="mt-3 text-[10px] text-white/15 text-center font-mono">
+        Price FHE-encrypted before leaving your browser · MEV-proof
       </p>
     </div>
   );
