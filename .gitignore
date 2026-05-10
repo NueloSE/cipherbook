@@ -1,34 +1,41 @@
-# fhevm
+# fhevm temp
 fhevmTemp
 
-# directories
-.coverage_artifacts
-.coverage_cache
-.coverage_contracts
+# hardhat build output
 artifacts
 build
 cache
 coverage
 dist
-node_modules
 types
-deployments
 tmp
-
-# deployment exports are committed manually after verified deploy
-
-# files
-*.env
-*.log
-.DS_Store
-.pnp.*
+deployments
+.coverage_artifacts
+.coverage_cache
+.coverage_contracts
 coverage.json
+
+# dependencies
+node_modules
+
+# vercel
+.vercel
+
+# env & secrets
+*.env
+.env*
+
+# logs
+*.log
+
+# os
+.DS_Store
+
+# package managers
+.pnp.*
 pnpm-lock.yaml
 yarn.lock
 
-node_modules
-artifacts
-cache
-types
-deployments
-.vercel
+# claude internal
+CLAUDE.md
+AGENTS.md
