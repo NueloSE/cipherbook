@@ -45,14 +45,23 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
 
   const [side, setSide] = useState<0 | 1>(OrderSide.BUY);
   const [amount, setAmount] = useState("");
-  // SELL only — the minimum price seller will accept (QUSD per TKN)
   const [sellPrice, setSellPrice] = useState("");
-  // BUY only — the max QUSD budget; effective price = quoteEscrow / amount
   const [quoteEscrow, setQuoteEscrow] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [baseBalance, setBaseBalance] = useState<bigint>(0n);
+  const [quoteBalance, setQuoteBalance] = useState<bigint>(0n);
 
-  // Derived effective BUY price (integer, QUSD per TKN)
+  useEffect(() => {
+    if (!address) return;
+    Promise.all([
+      readERC20<bigint>(baseTokenAddress, "balanceOf", [address]),
+      readERC20<bigint>(quoteTokenAddress, "balanceOf", [address]),
+    ])
+      .then(([b, q]) => { setBaseBalance(b); setQuoteBalance(q); })
+      .catch(() => {});
+  }, [address, baseTokenAddress, quoteTokenAddress]);
+
   const effectiveBuyPrice =
     amount && quoteEscrow && Number(amount) > 0
       ? Math.floor(Number(quoteEscrow) / Number(amount))
@@ -102,12 +111,10 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
         }
       }
 
-      // ── Approval ──────────────────────────────────────────────────────────
       setStatus("checking");
       const publicClient = getPublicClient();
 
       if (side === OrderSide.SELL) {
-        // Contract scales by 10^decimals internally, so approve the full wei amount
         const needed = BigInt(amount) * BigInt(10 ** BASE_TOKEN_DECIMALS);
         const allowance = await readERC20<bigint>(
           baseTokenAddress,
@@ -126,7 +133,6 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
           await publicClient.waitForTransactionReceipt({ hash: hash as `0x${string}` });
         }
       } else {
-        // Buyer approves QUSD (user enters whole QUSD, multiply by 10^6 for raw)
         const needed = BigInt(quoteEscrow) * BigInt(10 ** QUOTE_TOKEN_DECIMALS);
         const allowance = await readERC20<bigint>(
           quoteTokenAddress,
@@ -146,13 +152,9 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
         }
       }
 
-      // ── Encrypt price ─────────────────────────────────────────────────────
       setStatus("encrypting");
       const fhevm = await getFhevmInstance();
 
-      // For BUY: encrypt the effective price (quoteEscrow / amount) so it's
-      // tied to the actual payment — prevents bidding high while paying low.
-      // For SELL: encrypt the user-entered minimum price directly.
       const priceToEncrypt =
         side === OrderSide.BUY
           ? BigInt(Math.floor(Number(quoteEscrow) / Number(amount)))
@@ -193,6 +195,11 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
       setSellPrice("");
       setQuoteEscrow("");
       onOrderPlaced?.();
+      // refresh displayed balances after escrow is deducted
+      Promise.all([
+        readERC20<bigint>(baseTokenAddress, "balanceOf", [address]),
+        readERC20<bigint>(quoteTokenAddress, "balanceOf", [address]),
+      ]).then(([b, q]) => { setBaseBalance(b); setQuoteBalance(q); }).catch(() => {});
       setTimeout(() => setStatus("idle"), 3000);
     } catch (e: unknown) {
       if (isUserRejection(e)) {
@@ -211,18 +218,21 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
   const statusLabel: Record<Status, string> = {
     idle: `Place ${side === OrderSide.BUY ? "Buy" : "Sell"} Order`,
     checking: "Checking allowance…",
-    approving: "Approving tokens — check wallet…",
-    encrypting: "Encrypting price with FHE…",
+    approving: "Approving — check wallet…",
+    encrypting: "Encrypting with FHE…",
     submitting: "Waiting for wallet…",
     done: "Order Placed",
     error: `Place ${side === OrderSide.BUY ? "Buy" : "Sell"} Order`,
   };
 
-  return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-700">
-      <h2 className="text-lg font-bold text-white mb-4">Place Limit Order</h2>
+  const inputCls = "w-full bg-[#141622] text-[#e2e8f0] rounded-lg px-3 py-2.5 border border-[#1a1f35] focus:border-[#00f0ff]/50 focus:outline-none text-sm font-mono disabled:opacity-50 transition-colors placeholder-[#374060]";
 
-      <div className="flex rounded-lg overflow-hidden border border-gray-600 mb-5">
+  return (
+    <div className="bg-[#0f111a] rounded-xl p-6 border border-[#1a1f35] hover:border-[#252c48] transition-colors">
+      <h2 className="text-base font-bold text-[#e2e8f0] mb-4 font-mono tracking-wide">Place Limit Order</h2>
+
+      {/* Side selector */}
+      <div className="flex rounded-lg overflow-hidden border border-[#1a1f35] mb-5">
         {(
           [
             ["BUY", OrderSide.BUY],
@@ -232,12 +242,12 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
           <button
             key={label}
             onClick={() => setSide(val)}
-            className={`flex-1 py-2.5 text-sm font-bold transition-colors ${
+            className={`flex-1 py-2.5 text-sm font-bold font-mono transition-all ${
               side === val
                 ? val === OrderSide.BUY
-                  ? "bg-emerald-600 text-white"
-                  : "bg-rose-600 text-white"
-                : "bg-gray-800 text-gray-400 hover:text-white"
+                  ? "bg-[#003d28] border-b-2 border-[#00ff9d] text-[#00ff9d]"
+                  : "bg-[#3d0015] border-b-2 border-[#ff3b6b] text-[#ff3b6b]"
+                : "bg-[#141622] text-[#4a5578] hover:text-[#8892b0]"
             }`}
           >
             {label}
@@ -247,9 +257,19 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
 
       <div className="space-y-3 mb-5">
         <div>
-          <label className="block text-xs text-gray-400 mb-1.5">
-            Amount <span className="text-gray-600">({BASE_TOKEN_SYMBOL})</span>
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs text-[#4a5578] font-mono uppercase tracking-wider">
+              Amount <span className="text-[#374060] normal-case">({BASE_TOKEN_SYMBOL})</span>
+            </label>
+            {address && (
+              <span className="text-xs text-[#374060] font-mono">
+                Bal:{" "}
+                <span className="text-[#8892b0]">
+                  {(Number(baseBalance) / 10 ** BASE_TOKEN_DECIMALS).toLocaleString(undefined, { maximumFractionDigits: 2 })} {BASE_TOKEN_SYMBOL}
+                </span>
+              </span>
+            )}
+          </div>
           <input
             type="number"
             min="1"
@@ -257,14 +277,17 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             disabled={isBusy}
-            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm disabled:opacity-50"
+            className={inputCls}
           />
         </div>
 
         {side === OrderSide.SELL ? (
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5">
-              Min Price <span className="text-gray-600">({QUOTE_TOKEN_SYMBOL} per {BASE_TOKEN_SYMBOL}, encrypted)</span>
+            <label className="block text-xs text-[#4a5578] mb-1.5 font-mono uppercase tracking-wider">
+              Min Price{" "}
+              <span className="text-[#374060] normal-case">
+                ({QUOTE_TOKEN_SYMBOL}/{BASE_TOKEN_SYMBOL}, encrypted)
+              </span>
             </label>
             <input
               type="number"
@@ -273,17 +296,28 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
               value={sellPrice}
               onChange={(e) => setSellPrice(e.target.value)}
               disabled={isBusy}
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm disabled:opacity-50"
+              className={inputCls}
             />
-            <p className="mt-1 text-xs text-gray-600">
-              Your minimum acceptable price. Encrypted before leaving your browser.
+            <p className="mt-1 text-xs text-[#374060] font-mono">
+              FHE-encrypted before leaving your browser.
             </p>
           </div>
         ) : (
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5">
-              Max Payment <span className="text-gray-600">({QUOTE_TOKEN_SYMBOL} budget)</span>
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs text-[#4a5578] font-mono uppercase tracking-wider">
+                Max Payment{" "}
+                <span className="text-[#374060] normal-case">({QUOTE_TOKEN_SYMBOL} budget)</span>
+              </label>
+              {address && (
+                <span className="text-xs text-[#374060] font-mono">
+                  Bal:{" "}
+                  <span className="text-[#8892b0]">
+                    {(Number(quoteBalance) / 10 ** QUOTE_TOKEN_DECIMALS).toLocaleString(undefined, { maximumFractionDigits: 2 })} {QUOTE_TOKEN_SYMBOL}
+                  </span>
+                </span>
+              )}
+            </div>
             <input
               type="number"
               min="1"
@@ -291,17 +325,20 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
               value={quoteEscrow}
               onChange={(e) => setQuoteEscrow(e.target.value)}
               disabled={isBusy}
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm disabled:opacity-50"
+              className={inputCls}
             />
             {effectiveBuyPrice !== null && (
-              <p className="mt-1 text-xs text-indigo-400">
-                Effective price: <span className="font-mono font-bold">{effectiveBuyPrice} {QUOTE_TOKEN_SYMBOL}/{BASE_TOKEN_SYMBOL}</span>
-                {" "}— this will be FHE-encrypted as your bid price
+              <p className="mt-1 text-xs text-[#00f0ff]/70 font-mono">
+                Effective bid:{" "}
+                <span className="text-[#00f0ff] font-bold">
+                  {effectiveBuyPrice} {QUOTE_TOKEN_SYMBOL}/{BASE_TOKEN_SYMBOL}
+                </span>
+                {" "}— FHE-encrypted
               </p>
             )}
             {!effectiveBuyPrice && (
-              <p className="mt-1 text-xs text-gray-600">
-                Effective price = max payment ÷ amount. Unused {QUOTE_TOKEN_SYMBOL} returned after settlement.
+              <p className="mt-1 text-xs text-[#374060] font-mono">
+                Effective price = budget ÷ amount. Unused {QUOTE_TOKEN_SYMBOL} returned after settlement.
               </p>
             )}
           </div>
@@ -312,27 +349,29 @@ export function PlaceOrder({ onOrderPlaced, contractAddress, baseTokenAddress, q
         onClick={handleSubmit}
         disabled={!mounted || isBusy || !isConnected}
         suppressHydrationWarning
-        className={`w-full py-3 rounded-lg text-sm font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-          side === OrderSide.BUY
-            ? "bg-emerald-600 hover:bg-emerald-500 text-white"
-            : "bg-rose-600 hover:bg-rose-500 text-white"
+        className={`w-full py-3 rounded-lg text-sm font-bold font-mono transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+          status === "done"
+            ? "bg-[#003d28] border border-[#00ff9d]/60 text-[#00ff9d]"
+            : side === OrderSide.BUY
+              ? "bg-[#003d28] border border-[#00ff9d]/40 text-[#00ff9d] hover:bg-[#004d32] hover:border-[#00ff9d]/70"
+              : "bg-[#3d0015] border border-[#ff3b6b]/40 text-[#ff3b6b] hover:bg-[#4d001c] hover:border-[#ff3b6b]/70"
         }`}
       >
         {statusLabel[status]}
       </button>
 
       {status === "error" && errorMsg && (
-        <div className="mt-3 p-3 bg-rose-950 border border-rose-800 rounded-lg">
-          <p className="text-xs text-rose-300 break-words">{errorMsg}</p>
+        <div className="mt-3 p-3 bg-[#3d0015]/40 border border-[#ff3b6b]/30 rounded-lg">
+          <p className="text-xs text-[#ff3b6b] wrap-break-word font-mono">{errorMsg}</p>
         </div>
       )}
 
       {mounted && !isConnected && (
-        <p className="mt-3 text-xs text-gray-500 text-center">Connect your wallet to place orders</p>
+        <p className="mt-3 text-xs text-[#4a5578] text-center font-mono">Connect your wallet to place orders</p>
       )}
 
-      <p className="mt-3 text-xs text-gray-600 text-center">
-        Price is FHE-encrypted before leaving your browser — MEV-proof
+      <p className="mt-3 text-xs text-[#374060] text-center font-mono">
+        Price FHE-encrypted before leaving your browser — MEV-proof
       </p>
     </div>
   );

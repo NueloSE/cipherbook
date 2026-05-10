@@ -11,7 +11,6 @@ import {
   OrderSide,
   OrderStatus,
   BASE_TOKEN_SYMBOL,
-  BASE_TOKEN_DECIMALS,
   QUOTE_TOKEN_SYMBOL,
   QUOTE_TOKEN_DECIMALS,
 } from "@/lib/config";
@@ -33,12 +32,13 @@ type DecryptedOrder = RawOrder & { price: bigint };
 type LoadState = "idle" | "fetching" | "signing" | "decrypting" | "rejected";
 
 function formatEscrow(raw: bigint, side: number): string {
-  const decimals = side === OrderSide.SELL ? BASE_TOKEN_DECIMALS : QUOTE_TOKEN_DECIMALS;
-  const symbol   = side === OrderSide.SELL ? BASE_TOKEN_SYMBOL  : QUOTE_TOKEN_SYMBOL;
-  const divisor  = BigInt(10 ** decimals);
-  const whole    = raw / divisor;
-  const frac     = (raw % divisor).toString().padStart(decimals, "0").slice(0, 2);
-  return `${whole}.${frac} ${symbol}`;
+  if (side === OrderSide.SELL) {
+    return `${raw.toString()} ${BASE_TOKEN_SYMBOL}`;
+  }
+  const divisor = BigInt(10 ** QUOTE_TOKEN_DECIMALS);
+  const whole = raw / divisor;
+  const frac = (raw % divisor).toString().padStart(QUOTE_TOKEN_DECIMALS, "0").slice(0, 2);
+  return `${whole}.${frac} ${QUOTE_TOKEN_SYMBOL}`;
 }
 
 export function MyOrders({ refreshTrigger, contractAddress }: { refreshTrigger?: number; contractAddress: `0x${string}` }) {
@@ -68,12 +68,10 @@ export function MyOrders({ refreshTrigger, contractAddress }: { refreshTrigger?:
         return;
       }
 
-      // Fetch all raw orders (amounts are plaintext in new contract)
       const rawOrders = await Promise.all(
         ids.map((id) => readContract<RawOrder>("getMyOrder", [id], address, contractAddress))
       );
 
-      // Decrypt only the price handle via EIP-712 user decryption
       const fhevm = await getFhevmInstance();
       const { publicKey, privateKey } = fhevm.generateKeypair();
       const startTimestamp = Math.floor(Date.now() / 1000);
@@ -179,9 +177,9 @@ export function MyOrders({ refreshTrigger, contractAddress }: { refreshTrigger?:
 
   if (!mounted || !isConnected) {
     return (
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-700">
-        <h2 className="text-lg font-bold text-white mb-2">My Orders</h2>
-        <p className="text-sm text-gray-500">
+      <div className="bg-[#0f111a] rounded-xl p-6 border border-[#1a1f35]">
+        <h2 className="text-base font-bold text-[#e2e8f0] mb-2 font-mono tracking-wide">My Orders</h2>
+        <p className="text-sm text-[#4a5578] font-mono">
           {mounted ? "Connect your wallet to view your orders." : ""}
         </p>
       </div>
@@ -189,13 +187,13 @@ export function MyOrders({ refreshTrigger, contractAddress }: { refreshTrigger?:
   }
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-700">
+    <div className="bg-[#0f111a] rounded-xl p-6 border border-[#1a1f35] hover:border-[#252c48] transition-colors">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-white">My Orders</h2>
+        <h2 className="text-base font-bold text-[#e2e8f0] font-mono tracking-wide">My Orders</h2>
         <button
           onClick={loadOrders}
           disabled={loading || loadState === "signing"}
-          className="text-xs text-indigo-400 hover:text-indigo-300 disabled:opacity-50 transition-colors"
+          className="text-xs text-[#00f0ff]/60 hover:text-[#00f0ff] disabled:opacity-50 transition-colors font-mono"
         >
           {loadState === "fetching"
             ? "Fetching…"
@@ -208,97 +206,105 @@ export function MyOrders({ refreshTrigger, contractAddress }: { refreshTrigger?:
       </div>
 
       {loadState === "signing" && (
-        <div className="mb-3 rounded-lg bg-indigo-950 border border-indigo-700 px-4 py-3 text-sm text-indigo-300">
-          <span className="font-semibold">MetaMask signature required</span> — check your MetaMask popup and click{" "}
-          <span className="font-semibold">Sign</span>. Free off-chain signature, no gas.
+        <div className="mb-3 rounded-lg bg-[#00f0ff]/5 border border-[#00f0ff]/20 px-4 py-3 text-sm text-[#00f0ff]/80 font-mono">
+          <span className="font-semibold text-[#00f0ff]">Signature required</span> — approve in MetaMask. Free off-chain, no gas.
         </div>
       )}
 
       {loadState === "rejected" && (
-        <div className="mb-3 rounded-lg bg-rose-950 border border-rose-700 px-4 py-3 text-sm text-rose-300">
-          Signature rejected. Click <span className="font-semibold">Decrypt & Load</span> and approve the signature to view your orders.
+        <div className="mb-3 rounded-lg bg-[#3d0015]/40 border border-[#ff3b6b]/30 px-4 py-3 text-sm text-[#ff3b6b] font-mono">
+          Signature rejected. Click <span className="font-semibold">Decrypt & Load</span> to retry.
         </div>
       )}
 
       {!hasLoaded ? (
-        <div className="text-center py-4">
-          <p className="text-sm text-gray-500 mb-3">
-            Click below to decrypt and view your orders. MetaMask will ask for a free signature.
+        <div className="text-center py-6">
+          <p className="text-sm text-[#4a5578] mb-4 font-mono">
+            Click below to decrypt and view your orders. MetaMask will ask for a free off-chain signature.
           </p>
           <button
             onClick={loadOrders}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors"
+            className="px-5 py-2.5 bg-[#00f0ff]/10 hover:bg-[#00f0ff]/20 border border-[#00f0ff]/40 hover:border-[#00f0ff]/70 text-[#00f0ff] text-sm font-semibold rounded-lg transition-all font-mono"
           >
             Decrypt & Load Orders
           </button>
         </div>
       ) : loading && orders.length === 0 ? (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[#4a5578] font-mono">
           {loadState === "decrypting" ? "Decrypting your orders…" : "Fetching order IDs…"}
         </p>
       ) : orders.length === 0 && loadState === "idle" ? (
-        <p className="text-sm text-gray-500">No orders found.</p>
+        <p className="text-sm text-[#4a5578] font-mono">No orders found.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs text-gray-500 border-b border-gray-700">
-                <th className="pb-2 pr-3">ID</th>
-                <th className="pb-2 pr-3">Side</th>
-                <th className="pb-2 pr-3">Price</th>
-                <th className="pb-2 pr-3">Amount</th>
-                <th className="pb-2 pr-3">Remaining</th>
-                <th className="pb-2 pr-3">Escrowed</th>
-                <th className="pb-2 pr-3">Status</th>
-                <th className="pb-2">Actions</th>
+              <tr className="text-left border-b border-[#1a1f35]">
+                <th className="pb-2 pr-3 text-xs text-[#374060] font-mono uppercase tracking-wider">ID</th>
+                <th className="pb-2 pr-3 text-xs text-[#374060] font-mono uppercase tracking-wider">Side</th>
+                <th className="pb-2 pr-3 text-xs text-[#374060] font-mono uppercase tracking-wider">Price</th>
+                <th className="pb-2 pr-3 text-xs text-[#374060] font-mono uppercase tracking-wider">Amount</th>
+                <th className="pb-2 pr-3 text-xs text-[#374060] font-mono uppercase tracking-wider">Remaining</th>
+                <th className="pb-2 pr-3 text-xs text-[#374060] font-mono uppercase tracking-wider">Escrowed</th>
+                <th className="pb-2 pr-3 text-xs text-[#374060] font-mono uppercase tracking-wider">Status</th>
+                <th className="pb-2 text-xs text-[#374060] font-mono uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-[#1a1f35]">
               {orders.map((order) => (
-                <tr key={order.id.toString()} className="text-gray-300">
-                  <td className="py-2.5 pr-3 font-mono text-gray-500">#{order.id.toString()}</td>
-                  <td className="py-2.5 pr-3">
+                <tr key={order.id.toString()} className="text-[#8892b0] hover:bg-[#141622]/50 transition-colors">
+                  <td className="py-3 pr-3 font-mono text-xs">
+                    <a
+                      href={`https://sepolia.etherscan.io/address/${contractAddress}?a=${address}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#4a5578] hover:text-[#00f0ff]/70 transition-colors"
+                    >
+                      #{order.id.toString()} ↗
+                    </a>
+                  </td>
+                  <td className="py-3 pr-3">
                     <span
-                      className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                      className={`px-2 py-0.5 rounded text-xs font-mono font-semibold ${
                         order.side === OrderSide.BUY
-                          ? "bg-emerald-900 text-emerald-300"
-                          : "bg-rose-900 text-rose-300"
+                          ? "bg-[#003d28] text-[#00ff9d] border border-[#00ff9d]/30"
+                          : "bg-[#3d0015] text-[#ff3b6b] border border-[#ff3b6b]/30"
                       }`}
                     >
                       {order.side === OrderSide.BUY ? "BUY" : "SELL"}
                     </span>
                   </td>
-                  <td className="py-2.5 pr-3 font-mono">{order.price.toString()}</td>
-                  <td className="py-2.5 pr-3 font-mono">{order.amount.toString()}</td>
-                  <td className="py-2.5 pr-3 font-mono">
-                    <span className={order.remainingAmount === 0n ? "text-emerald-400" : ""}>
+                  <td className="py-3 pr-3 font-mono text-[#e2e8f0] text-sm">{order.price.toString()}</td>
+                  <td className="py-3 pr-3 font-mono text-sm">{order.amount.toString()}</td>
+                  <td className="py-3 pr-3 font-mono text-sm">
+                    <span className={order.remainingAmount === 0n ? "text-[#00ff9d]" : "text-[#8892b0]"}>
                       {order.remainingAmount.toString()}
                     </span>
                   </td>
-                  <td className="py-2.5 pr-3 font-mono text-xs">
+                  <td className="py-3 pr-3 font-mono text-xs text-[#8892b0]">
                     {formatEscrow(order.escrowedTokens, order.side)}
                   </td>
-                  <td className="py-2.5 pr-3">
+                  <td className="py-3 pr-3">
                     <span
-                      className={`px-2 py-0.5 rounded text-xs ${
+                      className={`px-2 py-0.5 rounded text-xs font-mono ${
                         order.status === OrderStatus.OPEN
-                          ? "bg-blue-900 text-blue-300"
+                          ? "bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/25"
                           : order.status === OrderStatus.FILLED
-                            ? "bg-emerald-900 text-emerald-300"
-                            : "bg-gray-700 text-gray-400"
+                            ? "bg-[#003d28] text-[#00ff9d] border border-[#00ff9d]/30"
+                            : "bg-[#141622] text-[#4a5578] border border-[#1a1f35]"
                       }`}
                     >
                       {ORDER_STATUS_LABEL[order.status]}
                     </span>
                   </td>
-                  <td className="py-2.5">
+                  <td className="py-3">
                     <div className="flex gap-2 flex-wrap">
                       {order.status === OrderStatus.OPEN && (
                         <>
                           <button
                             onClick={() => handleCancel(order.id)}
                             disabled={cancellingId === order.id}
-                            className="text-xs text-rose-400 hover:text-rose-300 disabled:opacity-50 transition-colors"
+                            className="text-xs text-[#ff3b6b]/70 hover:text-[#ff3b6b] disabled:opacity-50 transition-colors font-mono"
                           >
                             {cancellingId === order.id ? "…" : "Cancel"}
                           </button>
@@ -306,7 +312,7 @@ export function MyOrders({ refreshTrigger, contractAddress }: { refreshTrigger?:
                             <button
                               onClick={() => handleMarkFilled(order.id)}
                               disabled={markFilledId === order.id}
-                              className="text-xs text-emerald-400 hover:text-emerald-300 disabled:opacity-50 transition-colors"
+                              className="text-xs text-[#00ff9d]/70 hover:text-[#00ff9d] disabled:opacity-50 transition-colors font-mono"
                             >
                               {markFilledId === order.id ? "…" : "Mark Filled"}
                             </button>
@@ -318,7 +324,7 @@ export function MyOrders({ refreshTrigger, contractAddress }: { refreshTrigger?:
                           <button
                             onClick={() => handleWithdraw(order.id)}
                             disabled={withdrawingId === order.id}
-                            className="text-xs text-amber-400 hover:text-amber-300 disabled:opacity-50 transition-colors"
+                            className="text-xs text-amber-400/70 hover:text-amber-400 disabled:opacity-50 transition-colors font-mono"
                           >
                             {withdrawingId === order.id ? "…" : "Withdraw Escrow"}
                           </button>
@@ -332,8 +338,8 @@ export function MyOrders({ refreshTrigger, contractAddress }: { refreshTrigger?:
         </div>
       )}
 
-      <p className="mt-3 text-xs text-gray-600">
-        Price is decrypted locally using your wallet signature. Amounts and escrow are public on-chain.
+      <p className="mt-3 text-xs text-[#374060] font-mono">
+        Prices decrypted locally via EIP-712. Amounts and escrow are public on-chain.
       </p>
     </div>
   );

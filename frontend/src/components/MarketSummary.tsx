@@ -19,9 +19,9 @@ type TradeRecord = {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
-      <p className="text-xl font-bold text-white font-mono">{value}</p>
+    <div className="bg-[#141622] rounded-lg p-4 border border-[#1a1f35]">
+      <p className="text-xs text-[#4a5578] mb-1 font-mono uppercase tracking-wider">{label}</p>
+      <p className="text-xl font-bold text-[#e2e8f0] font-mono">{value}</p>
     </div>
   );
 }
@@ -59,7 +59,6 @@ export function MarketSummary({ refreshTrigger, contractAddress }: { refreshTrig
 
       const [lastTradedPrice, totalVolume, totalTrades, openOrders] = rawSummary;
       setSummary({ lastTradedPrice, totalVolume, totalTrades, openOrders });
-      // Reverse so newest is first
       setTrades([...rawTrades].reverse());
     } catch {
       // keep stale data on RPC error
@@ -73,53 +72,52 @@ export function MarketSummary({ refreshTrigger, contractAddress }: { refreshTrig
   }, [load, refreshTrigger]);
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-700">
-      <h2 className="text-lg font-bold text-white mb-4">
-        Market Summary{" "}
-        <span className="text-xs font-normal text-gray-500">{BASE_TOKEN_SYMBOL}/{QUOTE_TOKEN_SYMBOL}</span>
-      </h2>
+    <div className="bg-[#0f111a] rounded-xl p-6 border border-[#1a1f35] hover:border-[#252c48] transition-colors">
+      <div className="flex items-center gap-2 mb-4">
+        <h2 className="text-base font-bold text-[#e2e8f0] font-mono tracking-wide">Market</h2>
+        <span className="text-xs text-[#00f0ff]/60 font-mono">{BASE_TOKEN_SYMBOL}/{QUOTE_TOKEN_SYMBOL}</span>
+      </div>
 
       {loading ? (
         <div className="grid grid-cols-2 gap-3 mb-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-gray-800 rounded-lg p-4 border border-gray-700 animate-pulse h-16" />
+            <div key={i} className="bg-[#141622] rounded-lg p-4 border border-[#1a1f35] animate-pulse h-16" />
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 mb-4">
           <StatCard
-            label={`Last Price (${QUOTE_TOKEN_SYMBOL})`}
+            label={`Last Price`}
             value={formatPrice(summary?.lastTradedPrice ?? 0n)}
           />
           <StatCard
-            label={`Volume (${BASE_TOKEN_SYMBOL})`}
-            value={summary?.totalVolume === 0n ? "—" : summary?.totalVolume.toString() ?? "—"}
+            label={`Volume`}
+            value={summary?.totalVolume === 0n ? "—" : (summary?.totalVolume.toString() ?? "—")}
           />
           <StatCard label="Trades" value={summary?.totalTrades.toString() ?? "0"} />
           <StatCard label="Open Orders" value={summary?.openOrders.toString() ?? "0"} />
         </div>
       )}
 
-      {/* Recent trades */}
       <div>
-        <p className="text-xs font-semibold text-gray-400 mb-2">Recent Trades</p>
+        <p className="text-xs font-mono text-[#4a5578] mb-2 uppercase tracking-wider">Recent Trades</p>
         {trades.length === 0 ? (
-          <p className="text-xs text-gray-600">No trades yet.</p>
+          <p className="text-xs text-[#374060] font-mono">No trades yet.</p>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             {trades.map((t, i) => (
-              <div key={i} className="flex justify-between text-xs font-mono">
-                <span className="text-emerald-400">{formatPrice(t.price)} {QUOTE_TOKEN_SYMBOL}</span>
-                <span className="text-gray-400">{t.qty.toString()} {BASE_TOKEN_SYMBOL}</span>
-                <span className="text-gray-600">{formatTime(t.timestamp)}</span>
+              <div key={i} className="flex justify-between text-xs font-mono bg-[#141622]/60 rounded px-2 py-1">
+                <span className="text-[#00ff9d]">{formatPrice(t.price)} {QUOTE_TOKEN_SYMBOL}</span>
+                <span className="text-[#8892b0]">{t.qty.toString()} {BASE_TOKEN_SYMBOL}</span>
+                <span className="text-[#374060]">{formatTime(t.timestamp)}</span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      <p className="mt-3 text-xs text-gray-600">
-        Open order prices are never revealed — only aggregate stats are public.
+      <p className="mt-3 text-xs text-[#374060] font-mono">
+        Open order prices never revealed — only aggregate stats are public.
       </p>
     </div>
   );

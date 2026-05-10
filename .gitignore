@@ -39,3 +39,4 @@ yarn.lock
 # claude internal
 CLAUDE.md
 AGENTS.md
+deployments-export/

@@ -36,23 +36,30 @@ export function BatchMatch({ onMatchRun, contractAddress }: { onMatchRun?: () =>
   };
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-700">
-      <h2 className="text-lg font-bold text-white mb-1">Matching Engine</h2>
-      <p className="text-xs text-gray-500 mb-4">
-        Runs encrypted batch matching across all open orders. Anyone can trigger this — in production
-        it would be automated by a keeper.
+    <div className="bg-[#0f111a] rounded-xl p-6 border border-[#1a1f35] hover:border-[#252c48] transition-colors">
+      <h2 className="text-base font-bold text-[#e2e8f0] mb-1 font-mono tracking-wide">
+        Matching Engine
+      </h2>
+      <p className="text-xs text-[#4a5578] mb-4 leading-relaxed">
+        Runs encrypted batch matching across all open orders. Anyone can trigger this.
       </p>
 
       <button
         onClick={handleRun}
         disabled={!mounted || status === "pending" || !isConnected}
         suppressHydrationWarning
-        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg transition-colors"
+        className={`w-full py-3 rounded-lg text-sm font-bold font-mono transition-all disabled:opacity-40 disabled:cursor-not-allowed
+          ${status === "done"
+            ? "bg-[#003d28] border border-[#00ff9d]/50 text-[#00ff9d]"
+            : status === "error"
+              ? "bg-[#3d0015] border border-[#ff3b6b]/50 text-[#ff3b6b]"
+              : "bg-[#00f0ff]/10 border border-[#00f0ff]/40 text-[#00f0ff] hover:bg-[#00f0ff]/20 hover:border-[#00f0ff]/70"
+          }`}
       >
         {status === "pending"
           ? "Running Batch Match…"
           : status === "done"
-            ? "Match Complete!"
+            ? "Match Complete"
             : status === "error"
               ? "Transaction Failed"
               : "Run Batch Match"}
@@ -63,14 +70,14 @@ export function BatchMatch({ onMatchRun, contractAddress }: { onMatchRun?: () =>
           href={`https://sepolia.etherscan.io/tx/${lastTxHash}`}
           target="_blank"
           rel="noreferrer"
-          className="mt-2 block text-center text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+          className="mt-2 block text-center text-xs text-[#00f0ff]/60 hover:text-[#00f0ff] transition-colors font-mono"
         >
-          View on Etherscan →
+          View on Etherscan ↗
         </a>
       )}
 
       {mounted && !isConnected && (
-        <p className="mt-2 text-xs text-gray-500 text-center">Connect wallet to trigger matching</p>
+        <p className="mt-2 text-xs text-[#4a5578] text-center font-mono">Connect wallet to trigger matching</p>
       )}
     </div>
   );

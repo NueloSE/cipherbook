@@ -36,7 +36,6 @@ export default function PairSelector({ onSelect, selected }: Props) {
             functionName: "allPairs",
             args: [i],
           }) as `0x${string}`;
-          // Label first pair as TKN/QUSD; future pairs would need token symbol lookups
           loaded.push({ address: addr, label: i === 0n ? `${BASE_TOKEN_SYMBOL}/${QUOTE_TOKEN_SYMBOL}` : `Pair #${i + 1n}` });
         }
         setPairs(loaded);
@@ -55,11 +54,11 @@ export default function PairSelector({ onSelect, selected }: Props) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-gray-500">Pair</span>
+      <span className="text-xs text-[#4a5578] font-mono">PAIR</span>
       <select
         value={selected}
         onChange={(e) => onSelect(e.target.value as `0x${string}`)}
-        className="text-sm bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+        className="text-sm bg-[#141622] border border-[#1a1f35] rounded-lg px-3 py-1.5 text-[#00f0ff] font-mono focus:outline-none focus:border-[#00f0ff]/50 transition-colors cursor-pointer"
       >
         {pairs.map((p) => (
           <option key={p.address} value={p.address}>

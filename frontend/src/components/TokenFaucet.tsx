@@ -58,12 +58,9 @@ export default function TokenFaucet({ account, baseTokenAddress, quoteTokenAddre
     try {
       const walletClient = getWalletClient();
       if (!walletClient) throw new Error("No wallet");
-      const tokenAddress = token === "base"
-        ? (baseTokenAddress)
-        : (quoteTokenAddress);
+      const tokenAddress = token === "base" ? baseTokenAddress : quoteTokenAddress;
       const amount = token === "base" ? FAUCET_AMOUNT_BASE : FAUCET_AMOUNT_QUOTE;
       const hash = await writeERC20(walletClient, tokenAddress, "faucet", [account, amount], account);
-      // wait for inclusion
       const { getPublicClient } = await import("@/lib/contract");
       const pub = getPublicClient();
       await pub.waitForTransactionReceipt({ hash: hash as `0x${string}` });
@@ -79,27 +76,27 @@ export default function TokenFaucet({ account, baseTokenAddress, quoteTokenAddre
     }
   }
 
-  if (!mounted) {
-    return (
-      <div className="bg-gray-900 border border-gray-700 rounded-xl p-5">
-        <h2 className="text-lg font-semibold text-white mb-4">Token Faucet</h2>
-      </div>
-    );
-  }
+  const placeholder = (
+    <div className="bg-[#0f111a] border border-[#1a1f35] rounded-xl p-5">
+      <h2 className="text-base font-bold text-[#e2e8f0] mb-4 font-mono tracking-wide">Token Faucet</h2>
+    </div>
+  );
+
+  if (!mounted) return placeholder;
 
   if (!account) return (
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-5">
-      <h2 className="text-lg font-semibold text-white mb-4">Token Faucet</h2>
-      <p className="text-sm text-gray-500">Connect your wallet to use the faucet.</p>
+    <div className="bg-[#0f111a] border border-[#1a1f35] rounded-xl p-5">
+      <h2 className="text-base font-bold text-[#e2e8f0] mb-4 font-mono tracking-wide">Token Faucet</h2>
+      <p className="text-sm text-[#4a5578] font-mono">Connect your wallet to use the faucet.</p>
     </div>
   );
 
   return (
-    <div className="bg-gray-900 border border-gray-700 rounded-xl p-5">
-      <h2 className="text-lg font-semibold text-white mb-4">Token Faucet</h2>
+    <div className="bg-[#0f111a] border border-[#1a1f35] rounded-xl p-5 hover:border-[#252c48] transition-colors">
+      <h2 className="text-base font-bold text-[#e2e8f0] mb-4 font-mono tracking-wide">Token Faucet</h2>
 
       {error && (
-        <div className="mb-3 text-sm text-red-400 bg-red-950 border border-red-700 rounded-lg px-3 py-2">
+        <div className="mb-3 text-xs text-[#ff3b6b] bg-[#3d0015]/40 border border-[#ff3b6b]/30 rounded-lg px-3 py-2 font-mono">
           {error}
         </div>
       )}
@@ -125,20 +122,21 @@ export default function TokenFaucet({ account, baseTokenAddress, quoteTokenAddre
         ).map(({ key, symbol, balance, decimals, dripAmount }) => (
           <div
             key={key}
-            className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3"
+            className="flex items-center justify-between bg-[#141622] rounded-lg px-4 py-3 border border-[#1a1f35]"
           >
             <div>
-              <p className="text-sm text-gray-400">{symbol} balance</p>
-              <p className="text-white font-mono text-base">
-                {formatBalance(balance, decimals)} {symbol}
+              <p className="text-xs text-[#4a5578] font-mono uppercase tracking-wider">{symbol} Balance</p>
+              <p className="text-[#e2e8f0] font-mono text-base mt-0.5">
+                {formatBalance(balance, decimals)}{" "}
+                <span className="text-[#00f0ff]/60 text-sm">{symbol}</span>
               </p>
             </div>
             <button
               onClick={() => drip(key)}
               disabled={!!loading}
-              className="text-sm bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg transition-colors"
+              className="text-xs bg-[#00f0ff]/10 hover:bg-[#00f0ff]/20 border border-[#00f0ff]/40 hover:border-[#00f0ff]/70 disabled:opacity-50 text-[#00f0ff] px-3 py-1.5 rounded-lg transition-all font-mono"
             >
-              {loading === key ? "Minting…" : `Get ${dripAmount} ${symbol}`}
+              {loading === key ? "Minting…" : `Get ${dripAmount}`}
             </button>
           </div>
         ))}
